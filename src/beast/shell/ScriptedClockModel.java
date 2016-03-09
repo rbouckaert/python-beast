@@ -30,7 +30,7 @@ public class ScriptedClockModel extends Base {
 
 	@Override
 	public double getRateForBranch(Node node) {
-		return interpreter.getArrayValue(node.getNr());
+		return interpreter.getValue(node.getNr());
 	}
 
 	

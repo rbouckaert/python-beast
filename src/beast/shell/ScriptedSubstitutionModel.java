@@ -35,7 +35,7 @@ public class ScriptedSubstitutionModel extends SubstitutionModel.Base {
 	@Override
 	public void getTransitionProbabilities(Node node, double startTime, double endTime, double rate, double[] matrix) {
 		double [] result = interpreter.evalFunctionToArray(functionInputs.get(), "getTransitionProbabilities", node, startTime, endTime, rate);
-		System.arraycopy(result, 0, matrix, 0, matrix.length);
+		System.arraycopy(result, 0, matrix, 0, result.length);
 	}
 
 	@Override

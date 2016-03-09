@@ -31,7 +31,7 @@ public class ScriptedDistribution extends Distribution {
 	
     public double calculateLogP() {
         logP = 0;
-        logP = interpreter.getArrayValue();
+        logP = interpreter.getValue();
         return logP;
     }
 

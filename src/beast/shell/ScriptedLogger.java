@@ -30,18 +30,17 @@ public class ScriptedLogger extends BEASTObject implements Loggable {
 	
 	@Override
 	public void init(PrintStream out) {
-		interpreter.evalVoidFunction(functionInputs.get(), "init", out);
-
+		out.append(interpreter.evalStringFunction(functionInputs.get(), "init"));
 	}
 
 	@Override
 	public void log(int nSample, PrintStream out) {
-		interpreter.evalVoidFunction(functionInputs.get(), "log", nSample, out);
+		out.append(interpreter.evalStringFunction(functionInputs.get(), "log", nSample));
 	}
 
 	@Override
 	public void close(PrintStream out) {
-		interpreter.evalVoidFunction(functionInputs.get(), "close", out);
+		out.append(interpreter.evalStringFunction(functionInputs.get(), "close"));
 	}
 
 }

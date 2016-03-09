@@ -19,7 +19,7 @@ public class ScriptedParametricDistribution extends ParametricDistribution {
 	public Input<String> valueInput = new Input<String>("value", "script specifying the various functions required for a parametric distribution. "
 			+ "Arguments specified by x-inputs in order they are specified. "
 			+ "If an argument is a tree, it is passed as a JSON object. "
-			+ "Should contain inverseCumulativeProbability(p), desnity(x) and cumulativeProbability(x)."); 
+			+ "Should contain inverseCumulativeProbability(p), density(x) and cumulativeProbability(x)."); 
 
 	Distribution dist;
 	Interpreter interpreter;

@@ -11,9 +11,10 @@ import javax.script.*;
 import beast.core.*;
 import beast.core.util.*;
 import beast.evolution.tree.*;
+import jdk.nashorn.api.scripting.ScriptObjectMirror;
 
 @Description("Interpreter for Python-BEAST interoperation")
-public class Interpreter implements Loggable, beast.core.Function {
+public class Interpreter implements Loggable {
 
     ScriptEngine engine;
     Invocable inv;
@@ -21,6 +22,7 @@ public class Interpreter implements Loggable, beast.core.Function {
     boolean isUpToDate = false;
     boolean isScript = true; // otherwise it is an expression
     double [] value;
+    String stringValue;
     
     String id;
     List<Function> arguments;
@@ -92,13 +94,32 @@ public class Interpreter implements Loggable, beast.core.Function {
             args[k++] = _value;
         }
         
+        Object o = null;
+    	this.stringValue = null;
         try {
-       		Object o = inv.invokeFunction(functionName, args);
+       		o = inv.invokeFunction(functionName, args);
        		if (o != null) {
-                this.value[0] = Double.parseDouble(o.toString());
+       			if (o instanceof ScriptObjectMirror) {
+       				ScriptObjectMirror m = (ScriptObjectMirror) o;
+       				if (value.length != m.values().size()) {
+       					value = new double[m.values().size()];
+       				}
+       				int i = 0;
+       				for (Object o2 : m.values()) {
+           				this.value[i++] = Double.parseDouble(o2.toString());       					
+       				}
+       			} else {
+	       			try {
+	       				this.value[0] = Double.parseDouble(o.toString());
+	       			} catch (NumberFormatException e) {
+	       	            this.value[0] = Double.NaN;
+	       			}
+	   	            this.stringValue = o.toString();
+       			}
        		}
         } catch (NoSuchMethodException | ScriptException e) {
             this.value[0] = Double.NaN;
+        	this.stringValue = null;
             Log.err.println(e.getMessage());
         }
         isUpToDate = true;
@@ -123,21 +144,21 @@ public class Interpreter implements Loggable, beast.core.Function {
         return bf.toString();
     }
 
-    @Override public double getArrayValue() {
+    public double getValue(Object ...moreArgs) {
         if (!isUpToDate) {
-            calc(arguments, "f");
+            calc(arguments, "f", moreArgs);
         }
         return value[0];
     }
 
-    @Override public double getArrayValue(int iDim) {
+    public double getArrayValue(int iDim, Object ... moreArgs) {
         if (!isUpToDate) {
-            calc(arguments, "f");
+            calc(arguments, "f", moreArgs);
         }
         return value[iDim];
     }
 
-    @Override public int getDimension() {return value.length;}
+    public int getDimension() {return value.length;}
 
 
     protected void store() {
@@ -179,10 +200,7 @@ public class Interpreter implements Loggable, beast.core.Function {
 
 	public double evalFunction(List<Function> list, String functionName, Object ... args) {
 		calc(list, functionName, args);
-        isUpToDate = true;
-		double value = getArrayValue();
-        isUpToDate = false;
-		return value;
+		return value[0];
 	}
     
 	public double [] evalFunctionToArray(List<Function> list, String functionName, Object ... args) {
@@ -191,6 +209,11 @@ public class Interpreter implements Loggable, beast.core.Function {
 		return value.clone();
 	}
 
+	public String evalStringFunction(List<Function> list, String functionName, Object ... args) {
+		calc(list, functionName, args);
+		return stringValue;
+	}
+	
 	public void evalVoidFunction(List<Function> list, String functionName, Object ... args) {
 		calc(list, functionName, args);
 	}
